@@ -16,6 +16,7 @@ ENV WEBDAV_URL http://example.com
 # Add starting script
 RUN mkdir -p /etc/my_init.d
 ADD start.sh /etc/my_init.d/start.sh
+RUN chmod +x /etc/my_init.d/start.sh
 
 # Clean up APT when done.
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
