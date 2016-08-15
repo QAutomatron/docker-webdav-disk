@@ -1,26 +1,22 @@
 FROM phusion/baseimage:0.9.19
-MAINTAINER QAutomatron
 
-# Default variables
-ENV YANDEX_FOLDER = "/var/lib/selenium"
+# Use baseimage-docker's init system.
+CMD ["/sbin/my_init"]
 
-# Install sudo and wget
+# Install rsync and davfs2
 ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update -yqq
-RUN apt-get install sudo -yqq
-RUN apt-get install wget -yqq
+RUN apt-get install rsync -yqq
+RUN apt-get install davfs2 -yqq
 
-# Will install yandex-disk
-RUN echo "deb http://repo.yandex.ru/yandex-disk/deb/ stable main" | tee -a /etc/apt/sources.list.d/yandex.list > /dev/null && wget http://repo.yandex.ru/yandex-disk/YANDEX-DISK-KEY.GPG -O- | apt-key add - && apt-get update && apt-get install -y yandex-disk
+ENV WEBDAV_USER user
+ENV WEBDAV_PASSWORD password
+ENV WEBDAV_URL http://example.com
 
-# Will create folder
-RUN mkdir $YANDEX_FOLDER
+# Add starting script
+RUN mkdir -p /etc/my_init.d
+ADD start.sh /etc/my_init.d/start.sh
+RUN chmod +x /etc/my_init.d/start.sh
 
-# Folder to mount
-VOLUME ["$YANDEX_FOLDER"]
-
-# Copy start script
-COPY start.sh /
-RUN chmod +x /start.sh
-
-CMD ["/start.sh"]
+# Clean up APT when done.
+RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
